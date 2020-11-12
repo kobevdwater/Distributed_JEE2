@@ -14,10 +14,10 @@ import javax.persistence.OneToMany;
 @Entity
 public class Car implements Serializable {
     
-    
-//    @GeneratedValue(strategy = AUTO) long idd;
-    
     @Id
+    @GeneratedValue(strategy = AUTO) long idd;
+    
+//    @Id  Can not be id. Is not unique in different crc's
     private int id;
     
     @ManyToOne
@@ -85,9 +85,4 @@ public class Car implements Serializable {
     public Set<Reservation> getReservations() {
         return reservations;
     }
-    
-    //mag dit??
-//    void setReservations(Set<Reservation> newRes){
-//        this.reservations = newRes;
-//    }
 }

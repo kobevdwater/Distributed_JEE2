@@ -26,7 +26,6 @@ public class CarRentalCompany implements Serializable {
     @ManyToMany
     private Set<CarType> carTypes = new HashSet<CarType>();
     
-    @ManyToMany
     private List<String> regions;
 
 	

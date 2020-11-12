@@ -8,7 +8,10 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 public class CarType implements Serializable{
 
-    
+    @Id
+    @GeneratedValue(strategy = AUTO) long id;
+        
+        
     private String name;
     private int nbOfSeats;
     private boolean smokingAllowed;
@@ -29,50 +32,25 @@ public class CarType implements Serializable{
         this.rentalPricePerDay = rentalPricePerDay;
         this.smokingAllowed = smokingAllowed;
     }
-    
-    @Id
-    @GeneratedValue(strategy = AUTO) long id;
-    
-
 
     public String getName() {
     	return name;
-    }
-    
-    protected void setName(String name){
-        this.name = name;
     }
     
     public int getNbOfSeats() {
         return nbOfSeats;
     }
     
-    protected void setNbOfSeats(int nbOfSeats) {
-        this.nbOfSeats = nbOfSeats;
-    }
-    
     public boolean isSmokingAllowed() {
         return smokingAllowed;
-    }
-    
-    protected void setSmokingAllowed(boolean sm) {
-        this.smokingAllowed = sm;
     }
 
     public double getRentalPricePerDay() {
         return rentalPricePerDay;
     }
     
-    protected void setRentalPricePerDay(double rp) {
-        this.rentalPricePerDay = rp;
-    }
-    
     public float getTrunkSpace() {
     	return trunkSpace;
-    }
-    
-    protected void setTrunkSpace(float ts) {
-        this.trunkSpace = ts;
     }
     
     /*************
