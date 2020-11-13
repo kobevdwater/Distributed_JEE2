@@ -5,7 +5,13 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import javax.ejb.EJBContext;
 import javax.ejb.Stateful;
+import javax.ejb.TransactionAttribute;
+import static javax.ejb.TransactionAttributeType.REQUIRED;
+import static javax.ejb.TransactionAttributeType.SUPPORTS;
+import javax.transaction.Transaction;
+import rental.CarRentalCompany;
 import rental.CarType;
 import rental.Quote;
 import rental.RentalStore;
@@ -13,9 +19,12 @@ import rental.Reservation;
 import rental.ReservationConstraints;
 import rental.ReservationException;
 
+@TransactionAttribute(SUPPORTS)
 @Stateful
 public class ReservationSession implements ReservationSessionRemote {
+    
 
+    private EJBContext context;
     private String renter;
     private List<Quote> quotes = new LinkedList<Quote>();
 
@@ -46,6 +55,19 @@ public class ReservationSession implements ReservationSessionRemote {
             throw new ReservationException(e);
         }
     }
+    
+    @Override
+    public Quote createQuote(ReservationConstraints constraints) throws ReservationException {
+        for (String crcName : getAllRentalCompanies()){
+            CarRentalCompany crc = RentalStore.getRental(crcName);
+            if (crc.canCreateQuote(constraints)){
+                Quote out = crc.createQuote(constraints, renter);
+                quotes.add(out);
+                return out;
+            }
+        }
+        throw new ReservationException("could not make the reservation.");
+    }
 
     @Override
     public List<Quote> getCurrentQuotes() {
@@ -53,6 +75,7 @@ public class ReservationSession implements ReservationSessionRemote {
     }
 
     @Override
+    @TransactionAttribute(REQUIRED)
     public List<Reservation> confirmQuotes() throws ReservationException {
         List<Reservation> done = new LinkedList<Reservation>();
         try {
@@ -62,6 +85,7 @@ public class ReservationSession implements ReservationSessionRemote {
         } catch (Exception e) {
             for(Reservation r:done)
                 RentalStore.getRental(r.getRentalCompany()).cancelReservation(r);
+            context.setRollbackOnly();
             throw new ReservationException(e);
         }
         return done;

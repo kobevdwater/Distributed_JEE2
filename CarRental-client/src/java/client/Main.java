@@ -45,7 +45,10 @@ public class Main extends AbstractTestManagement<ReservationSessionRemote, Manag
 
     @Override
     protected ReservationSessionRemote getNewReservationSession(String name) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        InitialContext context = new InitialContext();
+        ReservationSessionRemote rs =  (ReservationSessionRemote) context.lookup(ReservationSessionRemote.class.getName());
+        rs.setRenterName(name);
+        return rs;
     }
 
     @Override
@@ -56,17 +59,18 @@ public class Main extends AbstractTestManagement<ReservationSessionRemote, Manag
 
     @Override
     protected void getAvailableCarTypes(ReservationSessionRemote session, Date start, Date end) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println(session.getAvailableCarTypes(start, end));
     }
 
     @Override
     protected void createQuote(ReservationSessionRemote session, String name, Date start, Date end, String carType, String region) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ReservationConstraints rc = new ReservationConstraints((start), end, carType, region);
+        session.createQuote(rc);
     }
 
     @Override
     protected List<Reservation> confirmQuotes(ReservationSessionRemote session, String name) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return session.confirmQuotes();
     }
 
     @Override

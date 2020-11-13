@@ -23,6 +23,8 @@ public interface ReservationSessionRemote {
     
     public Quote createQuote(String company, ReservationConstraints constraints) throws ReservationException;
     
+    public Quote createQuote(ReservationConstraints constraints) throws ReservationException;
+    
     public List<Quote> getCurrentQuotes();
     
     public List<Reservation> confirmQuotes() throws ReservationException;

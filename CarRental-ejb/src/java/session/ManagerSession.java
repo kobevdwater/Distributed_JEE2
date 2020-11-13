@@ -21,6 +21,7 @@ import rental.RentalStore;
 import rental.Reservation;
 
 @Stateless
+
 public class ManagerSession implements ManagerSessionRemote {
     
     @PersistenceContext
