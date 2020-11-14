@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import rental.Car;
 import rental.CarRentalCompany;
 import rental.CarType;
@@ -30,7 +31,15 @@ public class ManagerSession implements ManagerSessionRemote {
     @Override
     public Set<CarType> getCarTypes(String company) {
         try {
-            return new HashSet<CarType>(RentalStore.getRental(company).getAllTypes());
+            // Heb dit van het internet, misschien op deze manier?
+            TypedQuery<CarType> query = em.createQuery(
+  "SELECT CarType type FROM Comapny c WHERE c = ?1", CarType.class);
+            List<CarType> employees = query.setParameter("1", company).getResultList();
+
+            
+            // CarType carType = em.find(CarType.class, company);
+            return null;
+            // return new HashSet<CarType>(RentalStore.getRental(company).getAllTypes());
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -54,7 +63,10 @@ public class ManagerSession implements ManagerSessionRemote {
     @Override
     public int getNumberOfReservations(String company, String type, int id) {
         try {
-            return RentalStore.getRental(company).getCar(id).getReservations().size();
+            CarType carType = em.find(CarType.class, company).getResultList();
+            int numberOfReservations = em.find(, company);
+            return 0;
+            // return RentalStore.getRental(company).getCar(id).getReservations().size();
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return 0;
