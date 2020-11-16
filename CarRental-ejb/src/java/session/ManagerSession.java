@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,17 +30,16 @@ public class ManagerSession implements ManagerSessionRemote {
     private EntityManager em;
     
     @Override
-    public Set<CarType> getCarTypes(String company) {
+    public Collection<CarType> getCarTypes(String company) {
         try {
             // Heb dit van het internet, misschien op deze manier?
-            TypedQuery<CarType> query = em.createQuery(
-  "SELECT CarType type FROM Comapny c WHERE c = ?1", CarType.class);
-            List<CarType> employees = query.setParameter("1", company).getResultList();
+            //TypedQuery<CarType> query = em.createQuery(
+            //    "SELECT CarType type FROM Comapny c WHERE c = ?1", CarType.class);
+            //List<CarType> employees = query.setParameter("1", company).getResultList();
 
             
-            // CarType carType = em.find(CarType.class, company);
-            return null;
-            // return new HashSet<CarType>(RentalStore.getRental(company).getAllTypes());
+            CarRentalCompany crc = em.find(CarRentalCompany.class, company);
+            return crc.getAllTypes();
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -49,6 +49,7 @@ public class ManagerSession implements ManagerSessionRemote {
     @Override
     public Set<Integer> getCarIds(String company, String type) {
         Set<Integer> out = new HashSet<Integer>();
+        
         try {
             for(Car c: RentalStore.getRental(company).getCars(type)){
                 out.add(c.getId());
@@ -61,11 +62,14 @@ public class ManagerSession implements ManagerSessionRemote {
     }
 
     @Override
-    public int getNumberOfReservations(String company, String type, int id) {
+    public int getNumberOfReservations(String company, String type) {
+        int result = 0;
         try {
-            CarType carType = em.find(CarType.class, company).getResultList();
-            int numberOfReservations = em.find(, company);
-            return 0;
+            CarRentalCompany crc = em.find(CarRentalCompany.class, company);
+            for (Car car : crc.getCars(type)){
+                result += car.getReservations().size();
+            }
+            return result;
             // return RentalStore.getRental(company).getCar(id).getReservations().size();
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
@@ -74,17 +78,19 @@ public class ManagerSession implements ManagerSessionRemote {
     }
 
     @Override
-    public int getNumberOfReservations(String company, String type) {
-        Set<Reservation> out = new HashSet<Reservation>();
+    public int getNumberOfReservations(String company, String type, int id) {
         try {
+            CarRentalCompany crc = em.find(CarRentalCompany.class, company);
             for(Car c: RentalStore.getRental(company).getCars(type)){
-                out.addAll(c.getReservations());
+                if (c.getId() == id) {
+                    return c.getReservations().size();
+                }
             }
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return 0;
         }
-        return out.size();
+        return 0;
     }
 
     @Override

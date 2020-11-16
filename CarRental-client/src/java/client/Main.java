@@ -80,6 +80,6 @@ public class Main extends AbstractTestManagement<ReservationSessionRemote, Manag
 
     @Override
     protected int getNumberOfReservationsByCarType(ManagerSessionRemote ms, String carRentalName, String carType) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return ms.getNumberOfReservations(carRentalName, carType);
     }
 }
