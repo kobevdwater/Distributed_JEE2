@@ -37,13 +37,13 @@ public class ReservationSession implements ReservationSessionRemote {
     public Set<String> getAllRentalCompanies() {
         //return new HashSet<String>(RentalStore.getRentals().keySet());
         
-        
         // Die maakt een list van crc's maar normaal gezien zou ik toch strings moeten krijgen? select c.name, dus uhhh
         HashSet<String> result = new HashSet();
-        List<CarRentalCompany> out = em.createQuery("SELECT c.name FROM CarRentalCompany c", CarRentalCompany.class).getResultList();
-        for(CarRentalCompany crc : out) {
-            result.add(crc.getName());
-        }
+        List<String> out = em.createQuery("SELECT c.name FROM CarRentalCompany c", String.class).getResultList();
+        result.addAll(out);
+//        for(CarRentalCompany crc : out) {
+//            result.add(crc.getName());
+//        }
         return result;
     }
     
@@ -101,11 +101,14 @@ public class ReservationSession implements ReservationSessionRemote {
         try {
             for (Quote quote : quotes) {
                 //done.add(RentalStore.getRental(quote.getRentalCompany()).confirmQuote(quote));
-                done.add(em.find(CarRentalCompany.class, quote.getRentalCompany()).confirmQuote(quote));
+                Reservation res = em.find(CarRentalCompany.class, quote.getRentalCompany()).confirmQuote(quote);
+                em.persist(res);
+                done.add(res);
+                
             }
-        } catch (Exception e) {
-            for(Reservation r:done)
-                em.find(CarRentalCompany.class, r.getRentalCompany()).cancelReservation(r);
+        } catch (ReservationException e) {
+            //for(Reservation r : done)
+            //    em.find(CarRentalCompany.class, r.getRentalCompany()).cancelReservation(r);
             context.setRollbackOnly();
             throw new ReservationException(e);
         }
