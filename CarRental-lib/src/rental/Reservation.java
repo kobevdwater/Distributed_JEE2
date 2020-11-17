@@ -10,7 +10,6 @@ public class Reservation extends Quote {
 
     @Id
     @GeneratedValue(strategy = AUTO)
-    
     private int carId;
     
     /***************

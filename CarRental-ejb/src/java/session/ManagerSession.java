@@ -51,9 +51,15 @@ public class ManagerSession implements ManagerSessionRemote {
         Set<Integer> out = new HashSet<Integer>();
         
         try {
-            for(Car c: RentalStore.getRental(company).getCars(type)){
-                out.add(c.getId());
-            }
+            //for(Car c: RentalStore.getRental(company).getCars(type)){
+            //    out.add(c.getId());
+            //}
+            
+           CarRentalCompany crc = em.find(CarRentalCompany.class, company);
+           for (Car c: crc.getCars(type)){
+               out.add(c.getId());
+           }
+          
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -81,7 +87,7 @@ public class ManagerSession implements ManagerSessionRemote {
     public int getNumberOfReservations(String company, String type, int id) {
         try {
             CarRentalCompany crc = em.find(CarRentalCompany.class, company);
-            for(Car c: RentalStore.getRental(company).getCars(type)){
+            for(Car c: crc.getCars(type)){
                 if (c.getId() == id) {
                     return c.getReservations().size();
                 }
@@ -91,6 +97,21 @@ public class ManagerSession implements ManagerSessionRemote {
             return 0;
         }
         return 0;
+    }
+    
+    @Override
+    public int getNumberOfReservationsBy(String clientname) {
+        try {
+            
+        } catch (IllegalArgumentException e) {
+            Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
+            return 0;
+        }
+    }
+    
+    @Override
+    public Set<String> getBestClients() {
+        
     }
 
     @Override

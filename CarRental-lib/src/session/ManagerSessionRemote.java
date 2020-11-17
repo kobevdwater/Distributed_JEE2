@@ -17,6 +17,10 @@ public interface ManagerSessionRemote {
     
     public int getNumberOfReservations(String company, String type);
     
+    public int getNumberOfReservationsBy(String clientName);
+    
     public void addCarRentalCompany(String datafile);
+    
+    public Set<String> getBestClients();
       
 }
