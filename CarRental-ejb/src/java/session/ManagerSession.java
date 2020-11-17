@@ -102,8 +102,8 @@ public class ManagerSession implements ManagerSessionRemote {
     @Override
     public int getNumberOfReservationsBy(String clientname) {
         try {
-            
-        } catch (IllegalArgumentException e) {
+            return 0;
+        } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return 0;
         }
@@ -111,8 +111,14 @@ public class ManagerSession implements ManagerSessionRemote {
     
     @Override
     public Set<String> getBestClients() {
-        
+        return null;
     }
+    
+    @Override
+    public CarType getMostPopularCarTypeIn(String carRentalCompanyName, int year) {
+        return null;
+    }
+    
 
     @Override
     public void addCarRentalCompany(String datafile) {

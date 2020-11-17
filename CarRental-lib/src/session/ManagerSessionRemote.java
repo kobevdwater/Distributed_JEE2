@@ -22,5 +22,7 @@ public interface ManagerSessionRemote {
     public void addCarRentalCompany(String datafile);
     
     public Set<String> getBestClients();
+    
+    public CarType getMostPopularCarTypeIn(String carRentalCompanyName, int year);
       
 }

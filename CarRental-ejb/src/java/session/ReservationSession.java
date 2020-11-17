@@ -61,7 +61,8 @@ public class ReservationSession implements ReservationSessionRemote {
     }
     
      public String getCheapestCarType(Date start, Date end, String region) {
-         
+         List<CarType> availableCarTypes = getAvailableCarTypes(start, end);
+         return "";
      }
 
     @Override
