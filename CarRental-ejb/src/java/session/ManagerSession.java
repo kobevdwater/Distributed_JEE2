@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import rental.Car;
 import rental.CarRentalCompany;
 import rental.CarType;
@@ -31,19 +32,27 @@ public class ManagerSession implements ManagerSessionRemote {
     
     @Override
     public Collection<CarType> getCarTypes(String company) {
-        try {
             // Heb dit van het internet, misschien op deze manier?
-            //TypedQuery<CarType> query = em.createQuery(
-            //    "SELECT CarType type FROM Comapny c WHERE c = ?1", CarType.class);
-            //List<CarType> employees = query.setParameter("1", company).getResultList();
+            List<Long> ctids = em.createQuery(
+                "SELECT ct.id \n" + 
+                "FROM CarRentalCompany AS crc, carrentalCompany_cartype AS cc, CarType ct \n"+ 
+                "WHERE crc.name = ?1 AND cc.carrentalcompany_name = crc.name AND cc.carTypes_Id = ct.id", Long.class).
+                    setParameter("1", company).getResultList();
+            Set<CarType> result = new HashSet<>();
+            System.out.println(ctids);
+            for (long id: ctids){
+                result.add(em.find(CarType.class,id));
+            }
+            return result;
+            
 
             
-            CarRentalCompany crc = em.find(CarRentalCompany.class, company);
-            return crc.getAllTypes();
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
+//            CarRentalCompany crc = em.find(CarRentalCompany.class, company);
+//            return crc.getAllTypes();
+//        } catch (IllegalArgumentException ex) {
+//            Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
+//            return null;
+//        }
     }
 
     @Override
