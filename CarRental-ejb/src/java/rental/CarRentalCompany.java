@@ -1,11 +1,15 @@
 package rental;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -211,5 +215,47 @@ public class CarRentalCompany implements Serializable {
             }
         }
         return out;
+    }
+    
+    public Map<String,Integer> getAmountOfReservationsPerRenter(){
+        Map<String,Integer> result = new HashMap<String,Integer>();
+        
+        for (Car car : cars){
+            for (Reservation r : car.getReservations()){
+                String renter = r.getCarRenter();
+                if (result.containsKey(renter)){
+                    result.put(renter, result.get(renter)+1);
+                } else {
+                    result.put(renter,0);
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    public CarType getMostPopularCarTypeIn(int year){
+        Map<String,Integer> map = new HashMap<>();
+        Set<Reservation> resPerCar;
+        for (Car car : cars){
+            resPerCar = car.getReservations();
+            for (Reservation r : resPerCar){
+                map.putIfAbsent(r.getCarType(), 0);
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(r.getStartDate());
+                if (calendar.get(Calendar.YEAR) == year){
+                    map.replace(r.getCarType(),map.get(r.getCarType())+1);
+                }
+            }        
+        }
+        int max = 0;
+        String mostPopular = null;
+        for (String cartype : map.keySet()){
+            if (map.get(cartype) >= max){
+                mostPopular = cartype;
+                max = map.get(cartype);
+            }
+        }
+        return getType(mostPopular);
     }
 }

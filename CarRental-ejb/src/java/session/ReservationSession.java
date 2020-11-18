@@ -35,15 +35,9 @@ public class ReservationSession implements ReservationSessionRemote {
 
     @Override
     public Set<String> getAllRentalCompanies() {
-        //return new HashSet<String>(RentalStore.getRentals().keySet());
-        
-        // Die maakt een list van crc's maar normaal gezien zou ik toch strings moeten krijgen? select c.name, dus uhhh
         HashSet<String> result = new HashSet();
         List<String> out = em.createQuery("SELECT c.name FROM CarRentalCompany c", String.class).getResultList();
         result.addAll(out);
-//        for(CarRentalCompany crc : out) {
-//            result.add(crc.getName());
-//        }
         return result;
     }
     
@@ -61,8 +55,16 @@ public class ReservationSession implements ReservationSessionRemote {
     }
     
      public String getCheapestCarType(Date start, Date end, String region) {
-         List<CarType> availableCarTypes = getAvailableCarTypes(start, end);
-         return "";
+        List<CarType> availableCarTypes = getAvailableCarTypes(start, end);
+        CarType cheapest = null;
+        double minimum = Double.MAX_VALUE;
+        for (CarType ct : availableCarTypes){
+            if (ct.getRentalPricePerDay() < minimum){
+                cheapest = ct;
+                minimum = ct.getRentalPricePerDay();
+            }
+        }
+        return cheapest.getName();
      }
 
     @Override
@@ -107,8 +109,8 @@ public class ReservationSession implements ReservationSessionRemote {
                 
             }
         } catch (ReservationException e) {
-            //for(Reservation r : done)
-            //    em.find(CarRentalCompany.class, r.getRentalCompany()).cancelReservation(r);
+//            for(Reservation r : done) <-- This is done automaticaly by the setRollbackOnly
+//                em.find(CarRentalCompany.class, r.getRentalCompany()).cancelReservation(r);
             context.setRollbackOnly();
             throw new ReservationException(e);
         }

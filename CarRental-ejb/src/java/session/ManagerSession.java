@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -15,12 +17,10 @@ import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import rental.Car;
 import rental.CarRentalCompany;
 import rental.CarType;
 import rental.RentalStore;
-import rental.Reservation;
 
 @Stateless
 
@@ -101,22 +101,44 @@ public class ManagerSession implements ManagerSessionRemote {
     
     @Override
     public int getNumberOfReservationsBy(String clientname) {
-        try {
-            return 0;
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
-            return 0;
+        int result = 0;
+        Set<String> crcs = getAllRentalCompanies();
+        for (String crc : crcs){
+           result += em.find(CarRentalCompany.class,crc).getReservationsBy(clientname).size();
         }
+        return result;
     }
     
     @Override
     public Set<String> getBestClients() {
-        return null;
+        Map<String,Integer> amountPerClient = new HashMap<String,Integer>();
+        Map<String,Integer> amountPerCrc;
+        for (String crc : getAllRentalCompanies()){
+            amountPerCrc = em.find(CarRentalCompany.class,crc).getAmountOfReservationsPerRenter();
+            for (String renter : amountPerCrc.keySet()){
+                amountPerClient.putIfAbsent(renter, 0);
+                amountPerClient.replace(renter, amountPerClient.get(renter)+amountPerCrc.get(renter));
+            }
+        }
+        Set<String> result = new HashSet<String>();
+        int max = 0;
+        for (String renter : amountPerClient.keySet()){
+            int amount = amountPerClient.get(renter);
+            if (amount > max){
+                result.clear();
+                result.add(renter);
+                max = amount;
+            } else if (amount == max) {
+                result.add(renter);
+            }
+        }
+        return result;
     }
     
     @Override
     public CarType getMostPopularCarTypeIn(String carRentalCompanyName, int year) {
-        return null;
+        CarRentalCompany crc = em.find(CarRentalCompany.class,carRentalCompanyName);
+        return crc.getMostPopularCarTypeIn(year);
     }
     
 
@@ -141,7 +163,7 @@ public class ManagerSession implements ManagerSessionRemote {
         }
     }
     
-        public static CrcData loadData(String datafile)
+    public static CrcData loadData(String datafile)
             throws NumberFormatException, IOException {
 
         CrcData out = new CrcData();
@@ -186,6 +208,14 @@ public class ManagerSession implements ManagerSessionRemote {
             public List<Car> cars = new LinkedList<Car>();
             public String name;
             public List<String> regions =  new LinkedList<String>();
+    }
+    
+    // methode gecopy-pased van ReservationSession
+    public Set<String> getAllRentalCompanies() {
+        HashSet<String> result = new HashSet();
+        List<String> out = em.createQuery("SELECT c.name FROM CarRentalCompany c", String.class).getResultList();
+        result.addAll(out);
+        return result;
     }
 
 }
