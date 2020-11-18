@@ -22,6 +22,7 @@ import rental.Car;
 import rental.CarRentalCompany;
 import rental.CarType;
 import rental.RentalStore;
+import rental.Reservation;
 
 @Stateless
 
@@ -44,15 +45,6 @@ public class ManagerSession implements ManagerSessionRemote {
                 result.add(em.find(CarType.class,id));
             }
             return result;
-            
-
-            
-//            CarRentalCompany crc = em.find(CarRentalCompany.class, company);
-//            return crc.getAllTypes();
-//        } catch (IllegalArgumentException ex) {
-//            Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
-//            return null;
-//        }
     }
 
     @Override
@@ -60,32 +52,30 @@ public class ManagerSession implements ManagerSessionRemote {
         Set<Integer> out = new HashSet<Integer>();
         
         try {
-            //for(Car c: RentalStore.getRental(company).getCars(type)){
-            //    out.add(c.getId());
-            //}
-            
-           CarRentalCompany crc = em.find(CarRentalCompany.class, company);
-           for (Car c: crc.getCars(type)){
-               out.add(c.getId());
-           }
-          
+           List<Integer> carIDs = em.createQuery(
+                    "SELECT c.reservations \n" + 
+                    "FROM CarRentalCompany AS crc, Car AS c \n" +
+                    "WHERE crc.name = ?1 AND c.type = ?2 AND c.id IN "
+                            + "(SELECT c.id FROM CarRentalCompany_cars AS cc WHERE cc.id = c.id)", Integer.class).
+                    setParameter("1", company).setParameter("2", type).getResultList();
+           out.addAll(carIDs);
+           return out;
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
-        return out;
     }
 
     @Override
     public int getNumberOfReservations(String company, String type) {
-        int result = 0;
         try {
-            CarRentalCompany crc = em.find(CarRentalCompany.class, company);
-            for (Car car : crc.getCars(type)){
-                result += car.getReservations().size();
-            }
-            return result;
-            // return RentalStore.getRental(company).getCar(id).getReservations().size();
+            List<Reservation> allReservations = em.createQuery(
+                    "SELECT c.reservations \n" + 
+                    "FROM CarRentalCompany AS crc, Car AS c \n" +
+                    "WHERE crc.name = ?1 AND c.type = ?2 AND c.id IN "
+                            + "(SELECT c.id FROM CarRentalCompany_cars AS cc WHERE cc.id = c.id)", Reservation.class).
+                    setParameter("1", company).setParameter("2", type).getResultList();
+            return allReservations.size();
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return 0;
@@ -95,17 +85,17 @@ public class ManagerSession implements ManagerSessionRemote {
     @Override
     public int getNumberOfReservations(String company, String type, int id) {
         try {
-            CarRentalCompany crc = em.find(CarRentalCompany.class, company);
-            for(Car c: crc.getCars(type)){
-                if (c.getId() == id) {
-                    return c.getReservations().size();
-                }
-            }
+            List<Reservation> allReservations = em.createQuery(
+                    "SELECT c.reservations \n" +
+                    "FROM CarRentalCompany AS crc, Car AS c \n" +
+                    "WHERE crc.name = ?1 AND c.type = ?2 AND c.id IN "
+                            + "(SELECT c.id FROM CarRentalCompany_cars AS cc WHERE cc.id = c.id AND cc.id = ?3)", Reservation.class).
+                    setParameter("1", company).setParameter("2", type).setParameter("3", id).getResultList();
+            return allReservations.size();
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return 0;
         }
-        return 0;
     }
     
     @Override
