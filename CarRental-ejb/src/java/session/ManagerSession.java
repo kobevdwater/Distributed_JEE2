@@ -36,7 +36,7 @@ public class ManagerSession implements ManagerSessionRemote {
             // Heb dit van het internet, misschien op deze manier?
             List<Long> ctids = em.createQuery(
                 "SELECT ct.id \n" + 
-                "FROM CarRentalCompany AS crc, carrentalCompany_cartype AS cc, CarType ct \n"+ 
+                "FROM CarRentalCompany AS crc, carrentalCompany_cartype AS cc, CarType As ct \n"+ 
                 "WHERE crc.name = ?1 AND cc.carrentalcompany_name = crc.name AND cc.carTypes_Id = ct.id", Long.class).
                     setParameter("1", company).getResultList();
             Set<CarType> result = new HashSet<>();
@@ -56,7 +56,7 @@ public class ManagerSession implements ManagerSessionRemote {
                     "SELECT c.reservations \n" + 
                     "FROM CarRentalCompany AS crc, Car AS c \n" +
                     "WHERE crc.name = ?1 AND c.type = ?2 AND c.id IN "
-                            + "(SELECT c.id FROM CarRentalCompany_cars AS cc WHERE cc.id = c.id)", Integer.class).
+                            + "(SELECT c.id FROM CarRentalCompany_car AS cc WHERE cc.id = c.id)", Integer.class).
                     setParameter("1", company).setParameter("2", type).getResultList();
            out.addAll(carIDs);
            return out;
@@ -69,27 +69,31 @@ public class ManagerSession implements ManagerSessionRemote {
     @Override
     public int getNumberOfReservations(String company, String type) {
         try {
-            List<Reservation> allReservations = em.createQuery(
-                    "SELECT c.reservations \n" + 
-                    "FROM CarRentalCompany AS crc, Car AS c \n" +
-                    "WHERE crc.name = ?1 AND c.type = ?2 AND c.id IN "
-                            + "(SELECT c.id FROM CarRentalCompany_cars AS cc WHERE cc.id = c.id)", Reservation.class).
-                    setParameter("1", company).setParameter("2", type).getResultList();
+            List<Long> allReservations = em.createQuery(
+                   "SELECT c.idd"
+                           + " From CarRentalCompany As crc JOIN crc.cars c JOIN c.type tp JOIN c.reservations r "
+                           + "WHERE crc.name = ?1 AND tp.name = ?2", Long.class).
+                   setParameter("1", company).setParameter("2", type).getResultList();
+            System.out.println(allReservations);
             return allReservations.size();
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(ManagerSession.class.getName()).log(Level.SEVERE, null, ex);
             return 0;
         }
     }
+    
+//     "SELECT c.idd \n" +
+//                    "FROM Car AS c, APP.CARRENTALCOMPANY_CAR AS crcc, CarType AS ct, APP.CAR_RESERVATION AS cr \n" +
+//                    "WHERE crcc.carRentalCompany_Name = ?1 AND ct.name = ?2 AND c.TYPE_ID = ct.id AND cr.CAR_IDD = c.idd AND crcc.cars_idd = c.idd"
 
     @Override
     public int getNumberOfReservations(String company, String type, int id) {
         try {
             List<Reservation> allReservations = em.createQuery(
-                    "SELECT c.reservations \n" +
+                    "SELECT c.idd \n" +
                     "FROM CarRentalCompany AS crc, Car AS c \n" +
                     "WHERE crc.name = ?1 AND c.type = ?2 AND c.id IN "
-                            + "(SELECT c.id FROM CarRentalCompany_cars AS cc WHERE cc.id = c.id AND cc.id = ?3)", Reservation.class).
+                            + "(SELECT c.id FROM CarRentalCompany_car AS cc WHERE cc.id = c.id AND cc.id = ?3)", Reservation.class).
                     setParameter("1", company).setParameter("2", type).setParameter("3", id).getResultList();
             return allReservations.size();
         } catch (IllegalArgumentException ex) {
