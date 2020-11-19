@@ -82,10 +82,6 @@ public class ManagerSession implements ManagerSessionRemote {
         }
     }
     
-//     "SELECT c.idd \n" +
-//                    "FROM Car AS c, APP.CARRENTALCOMPANY_CAR AS crcc, CarType AS ct, APP.CAR_RESERVATION AS cr \n" +
-//                    "WHERE crcc.carRentalCompany_Name = ?1 AND ct.name = ?2 AND c.TYPE_ID = ct.id AND cr.CAR_IDD = c.idd AND crcc.cars_idd = c.idd"
-
     @Override
     public int getNumberOfReservations(String company, String type, int id) {
         try {
@@ -104,16 +100,25 @@ public class ManagerSession implements ManagerSessionRemote {
     
     @Override
     public int getNumberOfReservationsBy(String clientname) {
-        int result = 0;
-        Set<String> crcs = getAllRentalCompanies();
-        for (String crc : crcs){
-           result += em.find(CarRentalCompany.class,crc).getReservationsBy(clientname).size();
-        }
-        return result;
+        List<Long> allReservations = em.createQuery(
+                    "SELECT r.id \n" +
+                    "FROM Reservation As r \n" +
+                    "WHERE r.carRenter = ?1 ", Long.class).
+                    setParameter("1", clientname).getResultList();
+        return allReservations.size();
+//        int result = 0;
+//        Set<String> crcs = getAllRentalCompanies();
+//        for (String crc : crcs){
+//           result += em.find(CarRentalCompany.class,crc).getReservationsBy(clientname).size();
+//        }
+//        return result;
     }
     
     @Override
     public Set<String> getBestClients() {
+        
+        
+        
         Map<String,Integer> amountPerClient = new HashMap<String,Integer>();
         Map<String,Integer> amountPerCrc;
         for (String crc : getAllRentalCompanies()){

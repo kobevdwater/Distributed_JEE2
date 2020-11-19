@@ -44,13 +44,24 @@ public class ReservationSession implements ReservationSessionRemote {
     
     @Override
     public List<CarType> getAvailableCarTypes(Date start, Date end) {
+        List<Long> ctids = em.createQuery(
+                "SELECT DISTINCT tp.id \n" + 
+                "FROM  Car as c JOIN c.type as tp\n"+ 
+                "WHERE c.idd NOT IN (SELECT cc.idd FROM Car as cc JOIN cc.reservations r WHERE r.startDate BETWEEN ?1 AND ?2 OR r.endDate BETWEEN ?1 AND ?2)", Long.class).
+                    setParameter("1", start).setParameter("2",end).getResultList();
+        
         List<CarType> availableCarTypes = new LinkedList<CarType>();
-        for(String crc : getAllRentalCompanies()) {
-            for(CarType ct : em.find(CarRentalCompany.class, crc).getAvailableCarTypes(start, end)) {
-                if(!availableCarTypes.contains(ct))
-                    availableCarTypes.add(ct);
-            }
+//        for(String crc : getAllRentalCompanies()) {
+//            for(CarType ct : em.find(CarRentalCompany.class, crc).getAvailableCarTypes(start, end)) {
+//                if(!availableCarTypes.contains(ct))
+//                    availableCarTypes.add(ct);
+//            }
+//        }
+
+        for (Long id : ctids){
+            availableCarTypes.add(em.find(CarType.class, id));
         }
+
         return availableCarTypes;
     }
     
