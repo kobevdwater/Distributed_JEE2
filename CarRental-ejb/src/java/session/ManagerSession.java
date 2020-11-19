@@ -14,10 +14,17 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
+import javax.annotation.security.DeclareRoles;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.RunAs;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import javax.resource.spi.work.SecurityContext;
+import javax.ws.rs.core.Context;
 import rental.Car;
 import rental.CarRentalCompany;
 import rental.CarType;
@@ -25,9 +32,10 @@ import rental.RentalStore;
 import rental.Reservation;
 
 @Stateless
+@DeclareRoles("Manager")
+@RolesAllowed("Manager")
 
 public class ManagerSession implements ManagerSessionRemote {
-    
     @PersistenceContext
     private EntityManager em;
     

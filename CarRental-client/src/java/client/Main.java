@@ -1,12 +1,16 @@
 package client;
 
-
-
-
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
+import javax.annotation.security.DeclareRoles;
+import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.RunAs;
+import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
+import javax.resource.spi.work.SecurityContext;
+import javax.ws.rs.core.Context;
 import rental.CarType;
 import rental.Reservation;
 import rental.ReservationConstraints;
@@ -14,13 +18,14 @@ import session.ManagerSessionRemote;
 import session.ReservationSessionRemote;
 
 public class Main extends AbstractTestManagement<ReservationSessionRemote, ManagerSessionRemote> {
-
+    
     public Main(String scriptFile) {
         super(scriptFile);
     }
-
+    
     public static void main(String[] args) throws Exception {
         // TODO: use updated manager interface to load cars into companies
+        
         Main mn = new Main("trips");
         ManagerSessionRemote ms = mn.getNewManagerSession("Name");
         ms.addCarRentalCompany("dockx.csv");
