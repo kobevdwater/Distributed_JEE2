@@ -33,7 +33,6 @@ public class ManagerSession implements ManagerSessionRemote {
     
     @Override
     public Collection<CarType> getCarTypes(String company) {
-            // Heb dit van het internet, misschien op deze manier?
             List<Long> ctids = em.createQuery(
                 "SELECT ct.id \n" + 
                 "FROM CarRentalCompany AS crc, carrentalCompany_cartype AS cc, CarType As ct \n"+ 
@@ -106,19 +105,10 @@ public class ManagerSession implements ManagerSessionRemote {
                     "WHERE r.carRenter = ?1 ", Long.class).
                     setParameter("1", clientname).getResultList();
         return allReservations.size();
-//        int result = 0;
-//        Set<String> crcs = getAllRentalCompanies();
-//        for (String crc : crcs){
-//           result += em.find(CarRentalCompany.class,crc).getReservationsBy(clientname).size();
-//        }
-//        return result;
     }
     
     @Override
     public Set<String> getBestClients() {
-        
-        
-        
         Map<String,Integer> amountPerClient = new HashMap<String,Integer>();
         Map<String,Integer> amountPerCrc;
         for (String crc : getAllRentalCompanies()){
