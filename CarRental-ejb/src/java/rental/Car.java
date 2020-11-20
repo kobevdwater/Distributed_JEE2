@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import static javax.persistence.CascadeType.REMOVE;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import static javax.persistence.GenerationType.AUTO;
@@ -23,7 +24,7 @@ public class Car implements Serializable {
     @ManyToOne
     private CarType type;
     
-    @OneToMany
+    @OneToMany(cascade=REMOVE)
     private Set<Reservation> reservations;
 
     /***************

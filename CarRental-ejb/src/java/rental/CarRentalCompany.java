@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.*;
+import static javax.persistence.CascadeType.REMOVE;
 
 @Entity
 public class CarRentalCompany implements Serializable {
@@ -24,7 +25,7 @@ public class CarRentalCompany implements Serializable {
     @Id
     private String name;
     
-    @OneToMany
+    @OneToMany(cascade=REMOVE)
     private List<Car> cars;
     
     @ManyToMany
